@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0B1020">
+  <meta name="description" content="CRM ekibinde ortak vault kullanımı: sorun, çözüm, avantajlar ve mevcut kullanım örneği.">
+  <title>CRM ekibi için ortak vault</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230B1020'/%3E%3Cpath d='M8 10h16v14H8zM11 7h10' fill='none' stroke='%235DA8FF' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#scene-stage">Ana sahneye geç</a>
+  <div class="presentation" id="presentation" data-panel-open="false" data-editor-open="false">
+    <header class="topbar">
+      <div class="identity">
+        <button class="quiet-button edit-toggle" id="edit-toggle" type="button" aria-pressed="false" aria-controls="editor-panel">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12 4 4 4M3 17l4-1L17 6a2.8 2.8 0 0 0-4-4L3 12z"/></svg><span>Düzenle</span>
+        </button>
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 10h18v16H7zM11 6h10M12 16h8M12 21h5"/></svg>
+        <span>CRM ekibi / Vault</span>
+      </div>
+      <div class="section-location" aria-label="Geçerli bölüm">
+        <span class="section-index" id="section-index">01</span><span class="section-divider"></span><span id="section-name">Sorun</span>
+      </div>
+      <div class="toolbar">
+        <button class="quiet-button" id="image-layout-done" type="button" hidden>Panele dön</button>
+        <button class="quiet-button" id="chapters-toggle" type="button" aria-haspopup="dialog">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 4h3v3H3zM10 5h7M3 12h3v3H3zM10 13h7"/></svg><span>Bölümler</span>
+        </button>
+        <button class="icon-button" id="fullscreen-toggle" type="button" aria-label="Tam ekranı aç" title="Tam ekran">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 3H3v4M13 3h4v4M3 13v4h4M17 13v4h-4"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="work-area">
+      <main class="stage" id="scene-stage" tabindex="-1">
+        <h1 class="sr-only">CRM ekibi için ortak vault</h1>
+
+        <section class="scene" id="sorun" data-section="Sorun" data-title="Sorun ne?" aria-labelledby="title-problem">
+          <div class="scene-heading">
+            <h2 id="title-problem" tabindex="-1">Sorun ne?</h2>
+            <button class="detail-trigger" type="button" data-detail="problem" aria-label="Bu bölümün notlarını aç">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3h12v14H4zM7 7h6M7 10h6M7 13h3"/></svg><span>Notlar</span>
+            </button>
+          </div>
+          <div class="split-layout">
+            <ul class="slide-points">
+              <li>Proje bilgisi kodda, eski mesajlarda ve kişisel notlarda dağınık.</li>
+              <li>Agent, yeni bir analizde aynı bilgileri tekrar arıyor.</li>
+              <li>Çözülmüş sorunlar ve alınmış kararlar herkese ulaşmıyor.</li>
+            </ul>
+            <div class="diagram problem-map" data-graph="problem" role="group" aria-label="Yeni bir analizde farklı yerlerde tekrar aranan proje bilgileri">
+              <svg class="connector-layer" aria-hidden="true"></svg>
+              <div class="node problem-code" data-node="code" data-diagram-label><strong class="node-title">Kod</strong><span class="node-meta">Servisler ve metotlar</span></div>
+              <div class="node problem-messages" data-node="messages" data-diagram-label><strong class="node-title">Eski mesajlar</strong><span class="node-meta">Kararlar ve açıklamalar</span></div>
+              <div class="node node--hub problem-query" data-node="query" data-diagram-label><strong class="node-title">Yeni analiz</strong><span class="node-meta">Proje bilgisini yeniden arama</span></div>
+              <div class="node problem-docs" data-node="docs" data-diagram-label><strong class="node-title">Dokümanlar</strong><span class="node-meta">Mimari ve kurallar</span></div>
+              <div class="node problem-notes" data-node="notes" data-diagram-label><strong class="node-title">Kişisel notlar</strong><span class="node-meta">Önceki çözümler</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene" id="cozum" data-section="Çözüm" data-title="Çözüm ne?" aria-labelledby="title-solution" hidden>
+          <div class="scene-heading">
+            <h2 id="title-solution" tabindex="-1">Çözüm ne?</h2>
+            <button class="detail-trigger" type="button" data-detail="solution" aria-label="Bu bölümün notlarını aç">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3h12v14H4zM7 7h6M7 10h6M7 13h3"/></svg><span>Notlar</span>
+            </button>
+          </div>
+          <div class="split-layout solution-layout">
+            <ul class="slide-points">
+              <li>Bu bilgileri ortak bir vault’ta toplarız.</li>
+              <li>Vault, Markdown (<code>.md</code>) metin dosyalarından oluşan bir klasör.</li>
+              <li>Obsidian ile yönetiyorum; ilgili notlar birbirine bağlı.</li>
+              <li>Mimari, standartlar, sorunlar ve çözümler burada tutulur.</li>
+            </ul>
+            <figure class="screen-figure vault-figure">
+              <img class="vault-image" src="assets\vault-graph.png" width="663" height="526" alt="Mevcut Obsidian vault'unda teknik notları ve aralarındaki bağlantıları gösteren gerçek ekran görüntüsü.">
+              <figcaption>
+                <span>Mevcut vault görünümü.</span>
+                <button class="image-open" type="button" data-image="vault" aria-label="Vault görselini büyüt">Büyüt <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 3H3v4M13 3h4v4M3 13v4h4M17 13v4h-4"/></svg></button>
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+
+        <section class="scene" id="avantajlar" data-section="Avantajlar" data-title="Ne avantajı var?" aria-labelledby="title-benefits" hidden>
+          <div class="scene-heading">
+            <h2 id="title-benefits" tabindex="-1">Ne avantajı var?</h2>
+            <button class="detail-trigger" type="button" data-detail="benefits" aria-label="Bu bölümün notlarını aç">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3h12v14H4zM7 7h6M7 10h6M7 13h3"/></svg><span>Notlar</span>
+            </button>
+          </div>
+          <div class="split-layout benefits-layout">
+            <ul class="slide-points">
+              <li>Agent, proje bilgisini ilgili nottan alır.</li>
+              <li>Tekrarlanan analiz azaldıkça <strong>zaman ve token</strong> harcaması düşer.</li>
+              <li>Agentlar, ortak mimari kararları ve geliştirme kurallarını esas alır.</li>
+              <li>Önceki çözümler sonraki işlerde kullanılabilir.</li>
+            </ul>
+            <div class="benefit-example">
+              <div class="segmented" role="group" aria-label="İş örneği seçimi">
+                <button type="button" data-benefit="analysis" aria-pressed="true">Analiz</button>
+                <button type="button" data-benefit="development" aria-pressed="false">Geliştirme</button>
+                <button type="button" data-benefit="issue" aria-pressed="false">Hata çözümü</button>
+              </div>
+              <div class="comparison" role="group" aria-label="Seçilen iş için tekrar eden araştırma ve vault kullanımı karşılaştırması">
+                <h3 id="benefit-task" data-diagram-label>İlgili servisi bulmak</h3>
+                <div class="comparison-row" data-diagram-label>
+                  <span class="lane-label">Her seferinde</span>
+                  <div class="lane-flow"><span id="without-first">Kodda ara</span><svg viewBox="0 0 32 20" aria-hidden="true"><path d="M2 10h26m-6-6 6 6-6 6"/></svg><span id="without-second">Bağlantıları bul</span></div>
+                </div>
+                <div class="comparison-row is-selected" data-diagram-label>
+                  <span class="lane-label">Vault ile</span>
+                  <div class="lane-flow"><span id="with-first">İlgili notu oku</span><svg viewBox="0 0 32 20" aria-hidden="true"><path d="M2 10h26m-6-6 6 6-6 6"/></svg><span id="with-second">Kaynak dosyaya git</span></div>
+                </div>
+              </div>
+              <p class="scene-footnote">Örnek karşılaştırma.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene" id="benim-kullanimim" data-section="Mevcut kullanım" data-title="Ben nasıl kullanıyorum?" aria-labelledby="title-usage" hidden>
+          <div class="scene-heading">
+            <h2 id="title-usage" tabindex="-1">Ben nasıl kullanıyorum?</h2>
+            <button class="detail-trigger" type="button" data-detail="usage" aria-label="Bu bölümün notlarını aç">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3h12v14H4zM7 7h6M7 10h6M7 13h3"/></svg><span>Notlar</span>
+            </button>
+          </div>
+          <div class="split-layout usage-layout">
+            <div class="usage-copy">
+              <ul class="slide-points">
+                <li>Agentı, işe başlamadan önce vault’u okuyacak şekilde kullanıyorum.</li>
+                <li>Bu oturumda notlardan ilgili kod dosyasına geçiyor.</li>
+              </ul>
+              <div class="trace-stepper" role="group" aria-label="Gerçek oturumdaki adımlar">
+                <button type="button" data-trace-step="0" aria-pressed="true"><span>01</span><span class="trace-label">CRM/ITTP notu</span></button>
+                <button type="button" data-trace-step="1" aria-pressed="false"><span>02</span><span class="trace-label">Hata notu</span></button>
+                <button type="button" data-trace-step="2" aria-pressed="false"><span>03</span><span class="trace-label">Kaynak kod</span></button>
+              </div>
+              <p class="interaction-result" id="trace-result" role="status">Önce CRM/ITTP giriş notu okunmuş.</p>
+            </div>
+            <figure class="screen-figure trace-figure">
+              <div class="trace-frame" data-trace-position="0">
+                <img src="assets\agent-vault.png" width="709" height="289" alt="Agent önce CRM/ITTP giriş notunu, sonra 60-Neo-Satisi-Aktif-Uydu-Engeli.md notunu okuyor; ardından IspBSTemp.cs dosyasındaki ilgili kodu inceliyor.">
+                <div class="trace-focus" aria-hidden="true"></div>
+              </div>
+              <figcaption>
+                <span>Gerçek agent oturumu.</span>
+                <button class="image-open" type="button" data-image="agent" aria-label="Agent ekranını büyüt">Büyüt <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 3H3v4M13 3h4v4M3 13v4h4M17 13v4h-4"/></svg></button>
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+
+        <section class="scene" id="cozumun-kaydi" data-section="Çözümün kaydı" data-title="Çözüm nasıl kaydediliyor?" aria-labelledby="title-learning" hidden>
+          <div class="scene-heading">
+            <h2 id="title-learning" tabindex="-1">Çözüm nasıl kaydediliyor?</h2>
+            <button class="detail-trigger" type="button" data-detail="learning" aria-label="Bu bölümün notlarını aç">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3h12v14H4zM7 7h6M7 10h6M7 13h3"/></svg><span>Notlar</span>
+            </button>
+          </div>
+          <ul class="slide-points wide-points">
+            <li>Çözülen sorun vault’ta yoksa agent yeni bir Markdown notu oluşturur.</li>
+            <li>Çözüm, sonraki işler için saklanır.</li>
+            <li>Ortak vault’ta diğer geliştiriciler ve agentlar da bu notu kullanabilir.</li>
+          </ul>
+          <div class="scene-tools">
+            <div class="segmented" role="group" aria-label="Çözüm notunun kullanım zamanı">
+              <button type="button" data-learning="first" aria-pressed="true">İlk çözüm</button>
+              <button type="button" data-learning="next" aria-pressed="false">Sonraki benzer iş</button>
+            </div>
+          </div>
+          <div class="diagram learning-map" data-graph="learning" role="group" aria-label="Bir çözümün not olarak kaydedilmesi ve sonraki işte kullanılması">
+            <svg class="connector-layer" aria-hidden="true"></svg>
+            <div class="node" data-node="start" data-diagram-label><span class="node-kind">01</span><strong class="node-title" id="learning-start">Sorun</strong><span class="node-meta" id="learning-start-meta">Vault’ta çözümü yok</span></div>
+            <div class="node" data-node="work" data-diagram-label><span class="node-kind">02</span><strong class="node-title" id="learning-work">Çözüm bulunur</strong><span class="node-meta" id="learning-work-meta">İlgili kod incelenir</span></div>
+            <div class="node is-active" data-node="note" data-diagram-label><span class="node-kind">03</span><strong class="node-title" id="learning-note">Yeni .md notu</strong><span class="node-meta" id="learning-note-meta">Agent çözümü yazar</span></div>
+            <div class="node is-active" data-node="result" data-diagram-label><span class="node-kind">04</span><strong class="node-title" id="learning-result">Vault</strong><span class="node-meta" id="learning-result-meta">Çözüm saklanır</span></div>
+          </div>
+          <p class="scene-footnote">Örnek işleyiş.</p>
+        </section>
+
+        <section class="scene" id="ekipte-kullanim" data-section="Ortak kullanım" data-title="Ekipte nasıl kullanırız?" aria-labelledby="title-team" hidden>
+          <div class="scene-heading">
+            <h2 id="title-team" tabindex="-1">Ekipte nasıl kullanırız?</h2>
+            <button class="detail-trigger" type="button" data-detail="team" aria-label="Bu bölümün notlarını aç">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3h12v14H4zM7 7h6M7 10h6M7 13h3"/></svg><span>Notlar</span>
+            </button>
+          </div>
+          <div class="split-layout">
+            <ul class="slide-points">
+              <li>Mevcut vault’u CRM ekibinin ortak kullanımına açalım.</li>
+              <li>Herkesin agentını aynı bilgi kaynağına yönlendirelim.</li>
+              <li>Senkronizasyon için Obsidian Sync kullanmayı planlıyorum.</li>
+              <li>Paylaşım ve lisans koşullarını netleştirelim.</li>
+            </ul>
+            <div class="diagram team-map" data-graph="team" role="group" aria-label="Ortak vault'u kullanan CRM ekip üyelerinin agentları; planlanan yapı">
+              <svg class="connector-layer" aria-hidden="true"></svg>
+              <div class="node node--hub team-vault" data-node="vault" data-diagram-label><strong class="node-title">Ortak vault</strong><span class="node-meta">Senkron .md dosyaları</span></div>
+              <div class="node team-a" data-node="agent-a" data-diagram-label><span class="node-kind">EKİP ÜYESİ A</span><strong class="node-title">Kendi agentı</strong></div>
+              <div class="node team-b" data-node="agent-b" data-diagram-label><span class="node-kind">EKİP ÜYESİ B</span><strong class="node-title">Kendi agentı</strong></div>
+              <div class="node team-c" data-node="agent-c" data-diagram-label><span class="node-kind">EKİP ÜYESİ C</span><strong class="node-title">Kendi agentı</strong></div>
+            </div>
+          </div>
+          <p class="scene-footnote">Planlanan ortak kullanım.</p>
+        </section>
+      </main>
+
+      <aside class="detail-panel" id="detail-panel" aria-labelledby="detail-title" hidden>
+        <div class="detail-header">
+          <span class="eyebrow">Bölüm notları</span>
+          <button class="icon-button" id="detail-close" type="button" aria-label="Not panelini kapat"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button>
+        </div>
+        <div class="detail-scroll"><h2 id="detail-title" tabindex="-1"></h2><div id="detail-content"></div></div>
+        <div class="detail-footer"><kbd>Esc</kbd><span>Paneli kapat</span></div>
+      </aside>
+
+      <aside class="editor-panel" id="editor-panel" aria-labelledby="editor-heading" hidden>
+        <div class="editor-header">
+          <h2 id="editor-heading">Slaytı düzenle</h2>
+          <button class="icon-button" id="editor-close" type="button" aria-label="Düzenlemeyi bitir"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button>
+        </div>
+        <div class="editor-scroll">
+          <div class="editor-slide-tools" role="group" aria-label="Slayt işlemleri">
+            <button class="editor-button" id="editor-add-slide" type="button">+ Yeni slayt</button>
+            <button class="icon-button" id="editor-move-back" type="button" aria-label="Slaytı önceye taşı" title="Slaytı önceye taşı"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 11 5-5 5 5M10 6v10"/></svg></button>
+            <button class="icon-button" id="editor-move-forward" type="button" aria-label="Slaytı sonraya taşı" title="Slaytı sonraya taşı"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 9 5 5 5-5M10 4v10"/></svg></button>
+            <button class="quiet-button" id="editor-delete-slide" type="button">Sil</button>
+          </div>
+          <div class="editor-media-tools">
+            <button class="editor-button" id="editor-add-image" type="button">+ Görsel ekle</button>
+            <button class="editor-button" id="editor-arrange-images" type="button" disabled>Yerleştir</button>
+            <input id="editor-image-file" type="file" accept="image/png,image/jpeg,image/webp" multiple hidden>
+          </div>
+          <label class="editor-field"><span>Başlık</span><input id="editor-title" type="text" autocomplete="off"></label>
+          <label class="editor-field"><span>Üstteki bölüm adı</span><input id="editor-section" type="text" autocomplete="off"></label>
+          <div class="editor-points-heading">
+            <label for="editor-points">Maddeler</label>
+            <button class="quiet-button" id="editor-add-line" type="button">+ Satır</button>
+          </div>
+          <textarea id="editor-points" rows="6" aria-describedby="editor-line-help"></textarea>
+          <p class="editor-help" id="editor-line-help">Her satır bir madde. Enter ile yeni satır ekle.</p>
+          <p class="editor-word-count" id="editor-word-count"></p>
+          <details class="editor-group" id="editor-images-group" hidden>
+            <summary>Eklenen görseller</summary>
+            <div class="editor-image-list" id="editor-image-list" role="group" aria-label="Görsel seçimi"></div>
+            <div id="editor-image-controls" hidden>
+              <label class="editor-field"><span>Görsel açıklaması</span><input id="editor-image-alt" type="text" autocomplete="off"></label>
+              <label class="editor-field"><span>Genişlik <output id="editor-image-size-value"></output></span><input id="editor-image-size" type="range" min="3" max="100" step="1"></label>
+              <div class="editor-media-tools">
+                <button class="editor-button" id="editor-image-front" type="button">Öne getir</button>
+                <button class="editor-button" id="editor-image-remove" type="button">Görseli kaldır</button>
+              </div>
+            </div>
+            <p class="editor-help">Yerleştir ile slaytta sürükle; sağ alt köşeden boyutlandır. Oranı korunur. Klavye: oklarla taşı, + / − ile boyutlandır.</p>
+          </details>
+          <details class="editor-group" id="editor-extra-group">
+            <summary>Diyagram ve diğer yazılar</summary>
+            <p class="editor-help">Etkileşimli slaytta önce değiştireceğin seçeneği seç.</p>
+            <div id="editor-extra-fields"></div>
+          </details>
+          <details class="editor-group" id="editor-notes-group">
+            <summary>Bölüm notları</summary>
+            <div id="editor-notes-fields"></div>
+          </details>
+          <button class="quiet-button editor-reset" id="editor-reset" type="button">İlk sunuma dön</button>
+        </div>
+        <div class="editor-footer">
+          <p class="editor-save-status" id="editor-save-status" role="status">Değişiklikler bu tarayıcıda saklanır.</p>
+          <div class="editor-backup-actions">
+            <button class="editor-button" id="editor-export" type="button">Yedek indir</button>
+            <button class="editor-button" id="editor-import" type="button">Yedek yükle</button>
+          </div>
+          <p class="editor-help">Kayıt HTML dosyasını değiştirmez. Taşımak için yedek kullan.</p>
+          <input id="editor-import-file" type="file" accept=".json,application/json" hidden>
+        </div>
+      </aside>
+    </div>
+
+    <footer class="navigation" aria-label="Sunum gezinmesi">
+      <button class="nav-button" id="previous-scene" type="button" aria-label="Önceki bölüm" disabled><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m11 5-5 5 5 5M6 10h10"/></svg><span>Geri</span></button>
+      <div class="progress-area">
+        <div class="progress-steps" id="progress-steps" aria-label="Bölüm seçimi"></div>
+        <div class="progress-meta"><span class="scene-counter" id="scene-counter">01 / 06</span><span class="keyboard-hint"><kbd>←</kbd><kbd>→</kbd> ile ilerle</span></div>
+      </div>
+      <button class="nav-button nav-button--primary" id="next-scene" type="button" aria-label="Sonraki bölüm"><span>İleri</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m9 5 5 5-5 5M4 10h10"/></svg></button>
+    </footer>
+  </div>
+
+  <dialog class="chapter-dialog" id="chapter-dialog" aria-labelledby="chapters-title">
+    <div class="dialog-heading"><h2 id="chapters-title">Bölümler</h2><button class="icon-button" id="chapters-close" type="button" aria-label="Bölüm menüsünü kapat"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button></div>
+    <nav class="chapter-list" id="chapter-list" aria-label="Bölümler"></nav>
+  </dialog>
+  <dialog class="image-dialog" id="image-dialog" aria-labelledby="image-title">
+    <div class="dialog-heading">
+      <h2 id="image-title">Ekran görüntüsü</h2>
+      <div class="image-actions">
+        <button class="quiet-button" id="image-zoom" type="button" aria-pressed="false" aria-label="Görseli iki kat büyüt">2×</button>
+        <button class="icon-button" id="image-close" type="button" aria-label="Görseli kapat"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button>
+      </div>
+    </div>
+    <div class="image-canvas" id="image-canvas" tabindex="0" aria-label="Ekran görüntüsü; büyütülünce kaydırılabilir">
+      <img id="image-preview" alt="">
+      <p id="image-error" role="alert" hidden></p>
+    </div>
+  </dialog>
+  <div class="feedback" id="feedback" role="status" hidden></div>
+  <div class="sr-only" id="announcement" aria-live="polite" aria-atomic="true"></div>
+  <noscript><p class="noscript-notice">Etkileşimler ve bölüm geçişleri için JavaScript açık olmalı.</p></noscript>
+</body>
+</html>
