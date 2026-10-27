@@ -12,12 +12,16 @@
   const imagePreview = $("#image-preview");
   const editorPanel = $("#editor-panel");
   const state = { index: 0, benefit: "analysis", traceStep: 0, learning: "first", imageZoom: false, editing: false, arranging: false, selectedImage: null };
-  const storageKey = "vault-ekip-sunumu:editor:v1";
+  const publishedElement = $("#published-deck");
+  const storageScope = publishedElement ? `:${publishedElement.dataset.revision}` : "";
+  const storageKey = `vault-ekip-sunumu:editor:v1${storageScope}`;
+  const imageDatabaseName = `vault-ekip-sunumu-images${storageScope}`;
   const sceneElements = new Map(scenes.map(scene => [scene.id, scene]));
   const definitions = new Map();
   const extraInputs = new Map();
   const imageAssets = new Map();
   const failedImageIds = new Set();
+  let publishedAssets = {};
   let imageDatabase = null;
   let imageBusy = "";
   let imageError = "";
@@ -533,7 +537,7 @@
         return restored;
       }
     } catch (error) {
-      storageError = `Kayıt okunamadı; ilk sunum açıldı. ${error.message}`;
+      storageError = `Kayıt okunamadı; dosyadaki sunum açıldı. ${error.message}`;
     }
     return structuredClone(defaultValue);
   }
@@ -800,7 +804,7 @@
   function openImageDatabase() {
     if (imageDatabase) return imageDatabase;
     imageDatabase = new Promise((resolve, reject) => {
-      const request = indexedDB.open("vault-ekip-sunumu-images", 1);
+      const request = indexedDB.open(imageDatabaseName, 1);
       let failed = false;
       request.onupgradeneeded = () => request.result.createObjectStore("images", { keyPath: "id" });
       request.onerror = () => reject(request.error);
@@ -835,13 +839,16 @@
 
   async function removeStoredImages(ids) {
     try {
-      const database = await openImageDatabase();
-      await new Promise((resolve, reject) => {
-        const transaction = database.transaction("images", "readwrite");
-        transaction.oncomplete = resolve;
-        transaction.onabort = () => reject(transaction.error || new Error("Eski görseller temizlenemedi."));
-        for (const id of ids) transaction.objectStore("images").delete(id);
-      });
+      const storedIds = ids.filter(id => !Object.hasOwn(publishedAssets, id));
+      if (storedIds.length) {
+        const database = await openImageDatabase();
+        await new Promise((resolve, reject) => {
+          const transaction = database.transaction("images", "readwrite");
+          transaction.oncomplete = resolve;
+          transaction.onabort = () => reject(transaction.error || new Error("Eski görseller temizlenemedi."));
+          for (const id of storedIds) transaction.objectStore("images").delete(id);
+        });
+      }
       for (const id of ids) {
         const asset = imageAssets.get(id);
         if (asset) URL.revokeObjectURL(asset.url);
@@ -889,11 +896,22 @@
     const targetDeck = deck;
     setImageBusy("Görseller yükleniyor…", false);
     try {
+      for (const image of placed) {
+        if (!Object.hasOwn(publishedAssets, image.id)) continue;
+        const verified = await verifyImageBlob(dataUrlBlob(publishedAssets[image.id]));
+        if (deck !== targetDeck) return;
+        if (verified.width !== image.naturalWidth || verified.height !== image.naturalHeight) {
+          throw new Error(`Dosyadaki görselin ölçüleri uyuşmuyor: ${image.name}`);
+        }
+        cacheImageAsset({ id: image.id, blob: verified.blob });
+      }
+      const localImages = placed.filter(image => !Object.hasOwn(publishedAssets, image.id));
+      if (!localImages.length) return;
       const database = await openImageDatabase();
       const assets = await new Promise((resolve, reject) => {
         const transaction = database.transaction("images");
         const result = [];
-        for (const image of placed) {
+        for (const image of localImages) {
           const request = transaction.objectStore("images").get(image.id);
           request.onsuccess = () => { if (request.result) result.push(request.result); };
         }
@@ -908,8 +926,8 @@
     } catch (error) {
       notify(`Görseller yüklenemedi. ${error.message}`);
     } finally {
-      setImageBusy("");
       if (deck === targetDeck) {
+        setImageBusy("");
         for (const id of Object.keys(deck.slides)) renderAddedImages(id);
         renderImageEditor();
         queueDraw();
@@ -1320,6 +1338,28 @@
     if (!unsaved) notify("Yedek yüklendi ve bu tarayıcıya kaydedildi.");
   }
 
+  let defaultDeck = createDefaultDeck();
+  if (publishedElement) {
+    try {
+      if (!/^[a-f0-9]{16}$/.test(publishedElement.dataset.revision || "")) throw new Error("Sunum sürümü geçersiz.");
+      const source = JSON.parse(publishedElement.textContent);
+      defaultDeck = validateDeck(source);
+      publishedAssets = source.assets || {};
+      const placed = allAddedImages(defaultDeck);
+      if (typeof publishedAssets !== "object" || Array.isArray(publishedAssets) ||
+          Object.keys(publishedAssets).length !== placed.length ||
+          placed.some(image => !Object.hasOwn(publishedAssets, image.id) || typeof publishedAssets[image.id] !== "string")) {
+        throw new Error("Dosyaya gömülü görseller eksik veya geçersiz.");
+      }
+    } catch (error) {
+      const message = createElement("p", "", `Dosyadaki sunum açılamadı. ${error.message}`);
+      message.setAttribute("role", "alert");
+      stage.replaceChildren(message);
+      $$("button").forEach(button => { button.disabled = true; });
+      return;
+    }
+  }
+
   $("#previous-scene").addEventListener("click", () => showScene(state.index - 1));
   $("#next-scene").addEventListener("click", () => showScene(state.index + 1));
   $("#chapters-toggle").addEventListener("click", () => chapterDialog.showModal());
@@ -1463,11 +1503,12 @@
     if (file) importDeck(file);
   });
   $("#editor-reset").addEventListener("click", () => {
-    if (!confirm("Tüm düzenlemeler ve eklenen slaytlar kaldırılıp ilk sunum açılsın mı? Önce yedek indirebilirsin.")) return;
+    if (!confirm("Tüm yerel düzenlemeler kaldırılıp dosyadaki sunum açılsın mı? Önce yedek indirebilirsin.")) return;
     finishImageGesture(true);
     clearImageCache();
     deck = structuredClone(defaultDeck);
     storageConflict = false;
+    loadImageAssets();
     refreshDeck(deck.order[0]);
   });
   document.addEventListener("keydown", event => {
@@ -1552,7 +1593,6 @@
   new ResizeObserver(fitImage).observe($("#image-canvas"));
   const imageLayoutObserver = new ResizeObserver(queueDraw);
   imageLayoutObserver.observe(stage);
-  const defaultDeck = createDefaultDeck();
   deck = loadDeck(defaultDeck);
   persistedImageIds = new Set(allAddedImages().map(image => image.id));
   loadImageAssets();

@@ -10,16 +10,36 @@ PowerShell:
 Klasörü taşırken index.html, styles.css, app.js ve assets klasörünü
 birlikte taşıyın. İki gerçek ekran görüntüsü assets içindedir.
 
-AKIŞ
-1. Sorun ne?
-2. Çözüm ne?
-3. Ne avantajı var?
-4. Ben nasıl kullanıyorum?
-5. Çözüm nasıl kaydediliyor?
-6. Ekipte nasıl kullanırız?
+DOSYAYA GÖMÜLÜ SUNUM
+Varsayılan içerik, vault-sunumu-2026-10-27 (1).json yedeğinden alınmıştır.
+11 slaytın metinleri, notları, sırası ve 5 ek görselin dosyaları ile
+yerleşimleri index.html içine gömülüdür. Ziyaretçinin yedek yüklemesi
+veya önceden tarayıcıda kayıt oluşturması gerekmez.
 
-İçerik, kullanıcının CRM ekibine yazdığı mail ve paylaştığı iki ekran
-görüntüsüne dayanır. Metinler sunumu yapan kişinin ağzından yazılmıştır.
+Statik yayın için index.html, app.js, styles.css ve assets klasörünü
+birlikte yükleyin. JSON yedeğini ayrıca sunucuya koymak gerekmez.
+Sunum hiçbir yükleme işlemini kendisi yapmaz.
+
+Bu sürümün yerel düzenlemeleri ayrı bir kayıt alanında tutulur.
+Önceki sürümün tarayıcı kayıtları silinmez ve yeni içeriği değiştirmez.
+Düzenle düğmesi ziyaretçinin yalnızca kendi tarayıcısını değiştirir;
+yayımlanan dosyaları veya diğer kişilerin gördüğü sunumu değiştirmez.
+
+AKIŞ
+1. Prompt Engineering
+2. Model İçin Önemli Olan Tek Şey: Context
+3. Compaction
+4. Compact Sonrası Neler Sağ Çıktı
+5. Günümüz Problemi
+6. Çözüm; İkinci Beyin
+7. Nerede İşe Yarıyor
+8. Vault' un Avantajı
+9. Ben nasıl kullanıyorum?
+10. Çözüm nasıl kaydediliyor?
+11. Ekipte nasıl kullanırız?
+
+İçerik, kullanıcının CRM ekibine yazdığı maili ve yedekte yaptığı
+düzenlemeleri içerir. Yedekteki metinler ve görsel yerleşimleri korunmuştur.
 Önceki sürümdeki CrmWeb menü örneği kaldırılmıştır.
 
 KULLANIM
@@ -50,7 +70,8 @@ DÜZENLEME
 - Düzenleme sırasında metin alanlarındaki ok tuşları imleci hareket ettirir;
   slaydı değiştirmez. Geri, İleri ve Bölümler düğmeleri çalışmaya devam eder.
 - Kelime sayacı yalnızca uyarır; yazını kısaltmaz veya eklemeyi engellemez.
-- İlk sunuma dön, onaydan sonra altı slaytlık ilk içeriği geri getirir.
+- Dosyadaki sunuma dön, onaydan sonra yerel düzenlemeleri kaldırır;
+  dosyaya gömülü 11 slaytı ve görsellerini geri getirir.
 
 GÖRSEL EKLEME VE YERLEŞTİRME
 - Düzenle > + Görsel ekle ile PNG, JPG veya WebP dosyası seç.
@@ -74,9 +95,11 @@ GÖRSEL EKLEME VE YERLEŞTİRME
 
 KAYIT VE YEDEK
 Metinler ve görsel konumları bu tarayıcının yerel kaydına yazılır.
-Görsel dosyaları, metin kaydının küçük kotasını doldurmaması için tarayıcının
-yerel görsel deposunda (IndexedDB) saklanır. Sürükleme ve boyutlandırma,
-fareyi/parmağı bıraktığında kaydolur.
+Sonradan eklenen görsel dosyaları, metin kaydının küçük kotasını doldurmaması
+için tarayıcının yerel görsel deposunda (IndexedDB) saklanır.
+Dosyaya gömülü görseller doğrudan index.html içinden açılır; bunları
+göstermek için tarayıcı deposuna yazmak gerekmez.
+Sürükleme ve boyutlandırma, fareyi/parmağı bıraktığında kaydolur.
 Aynı tarayıcıda ve aynı dosya konumunda yeniden açınca geri yüklenir.
 Ctrl+S, düzenleme açıkken aynı yerel kaydı tekrar yapar.
 Kaydetme başarısız olursa panelde hata gösterilir; sekmeyi kapatmadan
@@ -110,7 +133,7 @@ ETKİLEŞİMLER
 - Çözümün kaydı: ilk çözüm ve sonraki benzer iş arasında geçiş yap.
 
 KAPSAM
-Ekran görüntüleri kullanıcının sağladığı orijinal dosyalardır.
+Ekran görüntüleri kullanıcının sağladığı dosyalardır.
 Agent örneği CRM/ITTP notundan Neo hata notuna, oradan IspBSTemp.cs
 dosyasına geçişi gösterir. Bu görsel bir hata çözümünün tamamlandığını
 göstermez. Sunum agent veya servis çalıştırmaz.
